@@ -2,6 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import jokes from "./JOKE.js";
 
+let jokesArray = jokes;
 const app = express();
 const port = 3000;
 const masterKey = "4VGP2DN-6EWM4SJ-N6FGRHV-Z3PR3TT";
@@ -9,30 +10,30 @@ const masterKey = "4VGP2DN-6EWM4SJ-N6FGRHV-Z3PR3TT";
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/random", (req, res) => {
-  const randomIndex = Math.floor(Math.random() * jokes.length);
-  res.json(jokes[randomIndex]);
+  const randomIndex = Math.floor(Math.random() * jokesArray.length);
+  res.json(jokesArray[randomIndex]);
 });
 
 app.get("/jokes/:id", (req, res) => {
   const id = parseInt(req.params.id);
-  const foundJoke = jokes.find((joke) => joke.id === id);
+  const foundJoke = jokesArray.find((joke) => joke.id === id);
   res.json(foundJoke);
 });
 
 app.get("/filter", (req, res) => {
   const type = req.query.type;
-  const foundJokes = jokes.filter((joke) => joke.jokeType === type);
+  const foundJokes = jokesArray.filter((joke) => joke.jokeType === type);
   res.json(foundJokes);
 });
 
 app.post("/jokes", (req, res) => {
   const newJoke = {
-    id: jokes.length + 1,
+    id: jokesArray.length + 1,
     jokeText: req.body.jokeText,
     jokeType: req.body.jokeType,
   };
-  jokes.push(newJoke);
-  console.log(jokes.slice(-1));
+  jokesArray.push(newJoke);
+  console.log(jokesArray.slice(-1));
   res.json(newJoke);
 });
 
@@ -46,7 +47,7 @@ app.put("/jokes/:id", (req, res) => {
     jokeText: req.body.jokeText,
     jokeType: req.body.jokeType,
   };
-  const foundJoke = jokes.find((joke) => joke.id === id);
+  const foundJoke = jokesArray.find((joke) => joke.id === id);
 
   foundJoke.jokeText = req.body.jokeText;
   foundJoke.jokeType = req.body.jokeType;
@@ -63,7 +64,7 @@ app.patch("/jokes/:id", (req, res) => {
     jokeText: req.body.jokeText,
     jokeType: req.body.jokeType,
   };
-  const foundJoke = jokes.find((joke) => joke.id === id);
+  const foundJoke = jokesArray.find((joke) => joke.id === id);
 
   foundJoke.jokeText = req.body.jokeText || foundJoke.jokeText;
   foundJoke.jokeType = req.body.jokeType || foundJoke.jokeType;
@@ -72,9 +73,9 @@ app.patch("/jokes/:id", (req, res) => {
 
 app.delete("/jokes/:id", (req, res) => {
   const id = parseInt(req.params.id);
-  const foundJokeIndex = jokes.findIndex((joke) => joke.id === id);
+  const foundJokeIndex = jokesArray.findIndex((joke) => joke.id === id);
   if (foundJokeIndex > -1) {
-    jokes.splice(foundJokeIndex, 1);
+    jokesArray.splice(foundJokeIndex, 1);
     res.sendStatus(200);
   } else {
     res
@@ -83,11 +84,10 @@ app.delete("/jokes/:id", (req, res) => {
   }
 });
 
-//8. DELETE All jokes
 app.delete("/all", (req, res) => {
   const userKey = req.query.key;
   if (userKey === masterKey) {
-    jokes = [];
+    jokesArray = [];
     res.sendStatus(200);
   } else {
     res
